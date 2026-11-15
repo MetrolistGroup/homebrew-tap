@@ -19,6 +19,7 @@ jobs:
         run: |
           mkdir -p "$(brew --repository)/Library/Taps/metrolistgroup"
           ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/metrolistgroup/homebrew-tap"
+          brew trust metrolistgroup/tap
       - run: brew style --cask metrolistgroup/tap/metrolist
       - run: brew audit --cask --online --strict metrolistgroup/tap/metrolist
       - run: brew install --cask metrolistgroup/tap/metrolist
@@ -34,6 +35,7 @@ jobs:
         run: |
           mkdir -p "$(brew --repository)/Library/Taps/metrolistgroup"
           ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/metrolistgroup/homebrew-tap"
+          brew trust metrolistgroup/tap
       - run: brew style metrolistgroup/tap/metrolist
       - run: brew audit --formula --online --strict metrolistgroup/tap/metrolist
       - run: brew install metrolistgroup/tap/metrolist

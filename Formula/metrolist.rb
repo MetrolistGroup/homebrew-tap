@@ -1,6 +1,13 @@
 class Metrolist < Formula
   desc "YouTube Music client"
   homepage "https://github.com/MetrolistGroup/Metrolist"
+  if Hardware::CPU.arm?
+    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-arm64-14.0.0.AppImage"
+    sha256 "4e73eb3fa6b8bc8d20e783bd931fcf36365a9dae836d76ed9870e1be34d0e54a"
+  else
+    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-x64-14.0.0.AppImage"
+    sha256 "0e75981e7a805ce669290edfb5537b96a4ac8951c2c3e6a50f00ed2b7896045f"
+  end
   license "GPL-3.0-only"
 
   livecheck do
@@ -10,14 +17,6 @@ class Metrolist < Formula
 
   depends_on :linux
 
-  on_intel do
-    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-x64-14.0.0.AppImage"
-    sha256 "0e75981e7a805ce669290edfb5537b96a4ac8951c2c3e6a50f00ed2b7896045f"
-  end
-  on_arm do
-    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-arm64-14.0.0.AppImage"
-    sha256 "4e73eb3fa6b8bc8d20e783bd931fcf36365a9dae836d76ed9870e1be34d0e54a"
-  end
 
   def install
     appimage = Dir["*.AppImage"].first

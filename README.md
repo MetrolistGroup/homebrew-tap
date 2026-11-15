@@ -2,6 +2,12 @@
 
 Installs the [Metrolist](https://github.com/MetrolistGroup/Metrolist) desktop app from its GitHub releases.
 
+Homebrew only installs from taps you trust, so trust this one once:
+
+```sh
+brew trust metrolistgroup/tap
+```
+
 macOS:
 
 ```sh
