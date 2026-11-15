@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cask:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tap this checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/metrolistgroup"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/metrolistgroup/homebrew-tap"
+      - run: brew style --cask metrolistgroup/tap/metrolist
+      - run: brew audit --cask --online --strict metrolistgroup/tap/metrolist
+      - run: brew install --cask metrolistgroup/tap/metrolist
+      - run: test -d /Applications/Metrolist.app
+
+  formula:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap this checkout
+        run: |
+          mkdir -p "$(brew --repository)/Library/Taps/metrolistgroup"
+          ln -s "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/metrolistgroup/homebrew-tap"
+      - run: brew style metrolistgroup/tap/metrolist
+      - run: brew audit --formula --online --strict metrolistgroup/tap/metrolist
+      - run: brew install metrolistgroup/tap/metrolist
+      - run: brew test metrolistgroup/tap/metrolist
