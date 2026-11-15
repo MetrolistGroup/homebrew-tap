@@ -17,7 +17,6 @@ class Metrolist < Formula
 
   depends_on :linux
 
-
   def install
     appimage = Dir["*.AppImage"].first
     chmod 0755, appimage
