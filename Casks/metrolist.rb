@@ -15,6 +15,8 @@ cask "metrolist" do
     strategy :github_latest
   end
 
+  depends_on :macos
+
   app "Metrolist.app"
 
   zap trash: [
