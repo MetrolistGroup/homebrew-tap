@@ -1,9 +1,9 @@
 cask "metrolist" do
   arch arm: "arm64", intel: "x64"
 
-  version "14.0.0"
-  sha256 arm:   "cbee8dce25f62ed1ba0ca89538b7a43e128995f188108722293ac9f752291e48",
-         intel: "3ab2634cc5a5bdd29e2a000ee08ada9b6bc8886e883bc0c97b9ab5060a098cc1"
+  version "14.0.1"
+  sha256 arm:   "1ffc14e691ce5bcb50d4a08d3aba6fba725458e4a07edb9125cbc08c7001ae29",
+         intel: "43fbb98130f23532c7217db4152f67eee257a543fc1926a5f27a70c9b49bbfba"
 
   url "https://github.com/MetrolistGroup/Metrolist/releases/download/v#{version}/metrolist-desktop-macos-#{arch}-#{version}.dmg"
   name "Metrolist"

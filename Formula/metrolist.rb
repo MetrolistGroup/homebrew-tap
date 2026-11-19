@@ -2,11 +2,11 @@ class Metrolist < Formula
   desc "YouTube Music client"
   homepage "https://github.com/MetrolistGroup/Metrolist"
   if Hardware::CPU.arm?
-    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-arm64-14.0.0.AppImage"
-    sha256 "4e73eb3fa6b8bc8d20e783bd931fcf36365a9dae836d76ed9870e1be34d0e54a"
+    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-linux-arm64-14.0.1.AppImage"
+    sha256 "521100e8ea7810a92fecb16a3b0ca6bb4c23beb93075ac365aee1159ce19d0ca"
   else
-    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.0/metrolist-desktop-linux-x64-14.0.0.AppImage"
-    sha256 "0e75981e7a805ce669290edfb5537b96a4ac8951c2c3e6a50f00ed2b7896045f"
+    url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-linux-x64-14.0.1.AppImage"
+    sha256 "b3c363a95e391be4e26a52bf95ae07a69f59639cdc63edb1f34183c5ebca4230"
   end
   license "GPL-3.0-only"
 
