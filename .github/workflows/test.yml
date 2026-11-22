@@ -11,10 +11,15 @@ permissions:
 
 jobs:
   cask:
-    runs-on: macos-latest
-    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - uses: Homebrew/actions/setup-homebrew@main
       - name: Tap this checkout
         run: |
           mkdir -p "$(brew --repository)/Library/Taps/metrolistgroup"
@@ -23,11 +28,23 @@ jobs:
       - run: brew style --cask metrolistgroup/tap/metrolist
       - run: brew audit --cask --online --strict metrolistgroup/tap/metrolist
       - run: brew install --cask metrolistgroup/tap/metrolist
-      - run: test -d /Applications/Metrolist.app
+      - name: Check the cask install
+        run: |
+          if [ "$(uname)" = Darwin ]; then
+            test -d /Applications/Metrolist.app
+          else
+            test -x "$HOME/Applications/Metrolist.AppImage"
+            data_home="${HOMEBREW_XDG_DATA_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}}"
+            test -f "$data_home/applications/Metrolist.desktop"
+          fi
 
   formula:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: Homebrew/actions/setup-homebrew@main
@@ -40,3 +57,4 @@ jobs:
       - run: brew audit --formula --online --strict metrolistgroup/tap/metrolist
       - run: brew install metrolistgroup/tap/metrolist
       - run: brew test metrolistgroup/tap/metrolist
+      - run: test -x "$(brew --prefix)/bin/metrolist"
