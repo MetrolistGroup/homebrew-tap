@@ -104,10 +104,12 @@ def update_formula(text, version, sums):
 
 def main():
     version, sums = latest_release()
-    changed = False
+    updates = []
     for path, update in ((CASK, update_cask), (FORMULA, update_formula)):
         before = path.read_text()
-        after = update(before, version, sums)
+        updates.append((path, before, update(before, version, sums)))
+    changed = False
+    for path, before, after in updates:
         if after != before:
             path.write_text(after)
             changed = True
