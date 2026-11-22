@@ -86,12 +86,19 @@ def update_formula(text, version, sums):
     for os_name, arch, ext in specs:
         name = f"metrolist-desktop-{os_name}-{arch}-{version}.{ext}"
         url = f"https://github.com/{REPO}/releases/download/v{version}/{name}"
+        nounzip = ',\n          using: :nounzip' if ext == "dmg" else ""
         pattern = (
             rf'url "https://github\.com/{REPO}/releases/download/v[^/]+/'
-            rf'metrolist-desktop-{os_name}-{arch}-[^"]+\.{ext}"\n'
+            rf'metrolist-desktop-{os_name}-{arch}-[^"]+\.{ext}"'
+            rf'(?:,\n\s+using: :nounzip)?\n'
             rf'(\s+)sha256 "{SHA}"'
         )
-        text, count = re.subn(pattern, lambda m, url=url, name=name: f'url "{url}"\n{m.group(1)}sha256 "{need(sums, name)}"', text, count=1)
+        text, count = re.subn(
+            pattern,
+            lambda m, url=url, name=name, nounzip=nounzip: f'url "{url}"{nounzip}\n{m.group(1)}sha256 "{need(sums, name)}"',
+            text,
+            count=1,
+        )
         if count != 1:
             raise SystemExit(f"Formula has no single {os_name} {arch} url/sha256 pair")
     return text

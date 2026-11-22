@@ -10,6 +10,8 @@ cask "metrolist" do
          x86_64_linux: "b3c363a95e391be4e26a52bf95ae07a69f59639cdc63edb1f34183c5ebca4230"
 
   on_macos do
+    depends_on macos: :sequoia
+
     app "Metrolist.app"
 
     caveats <<~EOS
@@ -35,8 +37,10 @@ cask "metrolist" do
   zap trash: [
     "~/.cache/metrolist",
     "~/.config/metrolist",
+    "~/.local/share/Metrolist",
     "~/.local/share/metrolist",
     "~/.local/state/metrolist",
+    "~/Library/Application Support/Metrolist",
     "~/Library/Saved Application State/com.metrolist.desktop.savedState",
   ]
 end

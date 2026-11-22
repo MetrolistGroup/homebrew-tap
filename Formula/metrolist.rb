@@ -3,10 +3,12 @@ class Metrolist < Formula
   homepage "https://github.com/MetrolistGroup/Metrolist"
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-macos-arm64-14.0.1.dmg"
+      url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-macos-arm64-14.0.1.dmg",
+          using: :nounzip
       sha256 "1ffc14e691ce5bcb50d4a08d3aba6fba725458e4a07edb9125cbc08c7001ae29"
     else
-      url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-macos-x64-14.0.1.dmg"
+      url "https://github.com/MetrolistGroup/Metrolist/releases/download/v14.0.1/metrolist-desktop-macos-x64-14.0.1.dmg",
+          using: :nounzip
       sha256 "43fbb98130f23532c7217db4152f67eee257a543fc1926a5f27a70c9b49bbfba"
     end
   elsif Hardware::CPU.arm?
@@ -23,9 +25,15 @@ class Metrolist < Formula
     strategy :github_latest
   end
 
+  on_macos do
+    depends_on "sevenzip" => :build
+  end
+
   def install
     if OS.mac?
-      libexec.install "Metrolist.app"
+      # The build sandbox cannot mount a DMG. -snld keeps the runtime's symlinks.
+      system "7zz", "x", "-snld", "-y", "-oextracted", Dir["*.dmg"].first
+      libexec.install "extracted/Metrolist/Metrolist.app"
       # The jpackage launcher finds its runtime relative to its own path.
       (bin/"metrolist").write <<~SH
         #!/bin/sh
