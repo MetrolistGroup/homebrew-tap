@@ -15,6 +15,7 @@ REPO = "MetrolistGroup/Metrolist"
 ROOT = Path(__file__).resolve().parent.parent
 CASK = ROOT / "Casks/metrolist.rb"
 FORMULA = ROOT / "Formula/metrolist.rb"
+SHA = r"[0-9a-f]{64}"
 
 
 def fetch(url):
@@ -38,7 +39,7 @@ def latest_release():
     sums = {}
     for line in fetch(sums_asset["browser_download_url"]).decode().splitlines():
         digest, _, name = line.strip().partition("  ")
-        if re.fullmatch(r"[0-9a-f]{64}", digest):
+        if re.fullmatch(SHA, digest):
             sums[name] = digest
     return version, sums
 
@@ -52,29 +53,63 @@ def need(sums, name):
 def update_cask(text, version, sums):
     arm = need(sums, f"metrolist-desktop-macos-arm64-{version}.dmg")
     intel = need(sums, f"metrolist-desktop-macos-x64-{version}.dmg")
-    text = re.sub(r'(?m)^  version "[^"]+"', f'  version "{version}"', text)
-    text = re.sub(r'sha256 arm:\s+"[0-9a-f]{64}",\s+intel: "[0-9a-f]{64}"',
-                  f'sha256 arm:   "{arm}",\n         intel: "{intel}"', text)
+    arm64_linux = need(sums, f"metrolist-desktop-linux-arm64-{version}.AppImage")
+    x64_linux = need(sums, f"metrolist-desktop-linux-x64-{version}.AppImage")
+    text, count = re.subn(r'(?m)^  version "[^"]+"', f'  version "{version}"', text)
+    if count != 1:
+        raise SystemExit(f"Cask version stanza matched {count} times")
+    sha = (
+        f'  sha256 arm:          "{arm}",\n'
+        f'         intel:        "{intel}",\n'
+        f'         arm64_linux:  "{arm64_linux}",\n'
+        f'         x86_64_linux: "{x64_linux}"'
+    )
+    text, count = re.subn(
+        rf'  sha256 arm:\s+"{SHA}",\s+intel:\s+"{SHA}",\s+'
+        rf'arm64_linux:\s+"{SHA}",\s+x86_64_linux:\s+"{SHA}"',
+        sha,
+        text,
+    )
+    if count != 1:
+        raise SystemExit(f"Cask sha256 stanza matched {count} times")
     return text
 
 
 def update_formula(text, version, sums):
-    for arch in ("x64", "arm64"):
-        name = f"metrolist-desktop-linux-{arch}-{version}.AppImage"
+    specs = (
+        ("macos", "arm64", "dmg"),
+        ("macos", "x64", "dmg"),
+        ("linux", "arm64", "AppImage"),
+        ("linux", "x64", "AppImage"),
+    )
+    for os_name, arch, ext in specs:
+        name = f"metrolist-desktop-{os_name}-{arch}-{version}.{ext}"
         url = f"https://github.com/{REPO}/releases/download/v{version}/{name}"
-        pattern = rf'url "https://github\.com/{REPO}/releases/download/v[^/]+/metrolist-desktop-linux-{arch}-[^"]+\.AppImage"\n(\s+)sha256 "[0-9a-f]{{64}}"'
-        text, count = re.subn(pattern, lambda m: f'url "{url}"\n{m.group(1)}sha256 "{need(sums, name)}"', text)
+        nounzip = ',\n          using: :nounzip' if ext == "dmg" else ""
+        pattern = (
+            rf'url "https://github\.com/{REPO}/releases/download/v[^/]+/'
+            rf'metrolist-desktop-{os_name}-{arch}-[^"]+\.{ext}"'
+            rf'(?:,\n\s+using: :nounzip)?\n'
+            rf'(\s+)sha256 "{SHA}"'
+        )
+        text, count = re.subn(
+            pattern,
+            lambda m, url=url, name=name, nounzip=nounzip: f'url "{url}"{nounzip}\n{m.group(1)}sha256 "{need(sums, name)}"',
+            text,
+        )
         if count != 1:
-            raise SystemExit(f"Formula has no single {arch} url/sha256 pair")
+            raise SystemExit(f"Formula {os_name} {arch} url/sha256 matched {count} times")
     return text
 
 
 def main():
     version, sums = latest_release()
-    changed = False
+    updates = []
     for path, update in ((CASK, update_cask), (FORMULA, update_formula)):
         before = path.read_text()
-        after = update(before, version, sums)
+        updates.append((path, before, update(before, version, sums)))
+    changed = False
+    for path, before, after in updates:
         if after != before:
             path.write_text(after)
             changed = True
