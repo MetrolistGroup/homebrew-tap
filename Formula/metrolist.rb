@@ -29,6 +29,9 @@ class Metrolist < Formula
     depends_on "sevenzip" => :build
   end
 
+  # The bundled JDK uses @rpath install names and has no header pad for absolute paths.
+  preserve_rpath
+
   def install
     if OS.mac?
       # The build sandbox cannot mount a DMG. -snld keeps the runtime's symlinks.
