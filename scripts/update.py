@@ -55,9 +55,9 @@ def update_cask(text, version, sums):
     intel = need(sums, f"metrolist-desktop-macos-x64-{version}.dmg")
     arm64_linux = need(sums, f"metrolist-desktop-linux-arm64-{version}.AppImage")
     x64_linux = need(sums, f"metrolist-desktop-linux-x64-{version}.AppImage")
-    text, count = re.subn(r'(?m)^  version "[^"]+"', f'  version "{version}"', text, count=1)
+    text, count = re.subn(r'(?m)^  version "[^"]+"', f'  version "{version}"', text)
     if count != 1:
-        raise SystemExit("Cask has no single version")
+        raise SystemExit(f"Cask version stanza matched {count} times")
     sha = (
         f'  sha256 arm:          "{arm}",\n'
         f'         intel:        "{intel}",\n'
@@ -69,10 +69,9 @@ def update_cask(text, version, sums):
         rf'arm64_linux:\s+"{SHA}",\s+x86_64_linux:\s+"{SHA}"',
         sha,
         text,
-        count=1,
     )
     if count != 1:
-        raise SystemExit("Cask sha256 stanza did not match")
+        raise SystemExit(f"Cask sha256 stanza matched {count} times")
     return text
 
 
@@ -97,10 +96,9 @@ def update_formula(text, version, sums):
             pattern,
             lambda m, url=url, name=name, nounzip=nounzip: f'url "{url}"{nounzip}\n{m.group(1)}sha256 "{need(sums, name)}"',
             text,
-            count=1,
         )
         if count != 1:
-            raise SystemExit(f"Formula has no single {os_name} {arch} url/sha256 pair")
+            raise SystemExit(f"Formula {os_name} {arch} url/sha256 matched {count} times")
     return text
 
 
