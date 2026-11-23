@@ -21,4 +21,4 @@ Metrolist is not signed or notarized on macOS. If the first launch is blocked, v
 
 `brew uninstall --zap --cask metrolist` also removes Metrolist's settings, library database and downloads. Export a backup first if you want to keep them.
 
-The tap updates itself: a scheduled workflow points the cask and formula at the latest stable release and its published `SHA256SUMS`, then runs the install tests on macOS and Linux. Nightly builds are not packaged here.
+The tap updates when Metrolist publishes a stable release: Metrolist's release workflow calls `update.yml`, which points the cask and formula at that release and its published `SHA256SUMS` and pushes with a deploy key. The push runs the install tests on macOS and Linux. Run `update.yml` by hand to retry. Nightly builds are not packaged here.

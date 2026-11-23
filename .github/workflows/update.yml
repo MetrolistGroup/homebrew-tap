@@ -1,17 +1,21 @@
 name: Update
 
+# Metrolist's release workflow calls this right after publishing a stable release.
+# Run it by hand to retry a failed update.
 on:
-  schedule:
-    - cron: "17 */4 * * *"
+  workflow_call:
+    secrets:
+      DEPLOY_KEY:
+        description: Write deploy key for this repository.
+        required: true
   workflow_dispatch:
-  repository_dispatch:
-    types: [metrolist-release]
 
+# Pushes use the deploy key, which also starts test.yml; the token only reads release metadata.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: update
+  group: homebrew-tap-update
   cancel-in-progress: false
 
 jobs:
@@ -20,6 +24,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: MetrolistGroup/homebrew-tap
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
       - name: Point the cask and formula at the latest release
         id: update
         env:
@@ -34,8 +41,3 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "metrolist $VERSION"
           git push
-      - name: Test the update
-        if: steps.update.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run test.yml --ref main
